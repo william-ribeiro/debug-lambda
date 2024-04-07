@@ -1,0 +1,13 @@
+# Dependencies
+node_modules
+
+# Envs
+.env
+.env.test
+
+# Build
+.build
+.serverless
+
+*.key
+

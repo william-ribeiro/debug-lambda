@@ -1,0 +1,57 @@
+service: api-poc
+
+plugins:
+    - serverless-lift
+    - serverless-offline
+    - serverless-plugin-typescript
+    - serverless-dotenv-plugin
+    - serverless-plugin-resource-tagging
+
+useDotenv: true
+
+custom:
+    scripts:
+    deploymentBucket:
+        blockPublicAccess: true
+    dotenv:
+        exclude:
+            - AWS_REGION
+            - AWS_ACCESS_KEY_ID
+            - AWS_SECRET_ACCESS_KEY
+
+package:
+    excludeDevDependencies: true
+
+provider:
+    name: aws
+    stage: ${opt:stage, 'test'}
+    region: ${opt:region, 'us-east-1'}
+    runtime: nodejs18.x
+    memorySize: 128
+    timeout: 10
+    vpc:
+        securityGroupIds:
+            - ${env:SG_ID}
+        subnetIds:
+            - ${env:SUBNET_ID_1}
+            - ${env:SUBNET_ID_2}
+    stackTags:
+        application: 'api-poc'
+        environment: ${env:ENVIRONMENT_ID}
+        project: 'api-poc'
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action: '*'
+                  Resource: '*'
+
+functions:        
+    app:
+        handler: serverless.handler
+        events:
+            - http:
+                  path: /{proxy+}
+                  method: 'ANY'
+
+        
